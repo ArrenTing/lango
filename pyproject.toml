@@ -55,11 +55,27 @@ select = [
   "PTH",       # pathlib
   "PL",        # pylint subset
   "ASYNC",     # async pitfalls (we are an async web app)
+  "TID",       # tidy imports: banned-api below keeps tracing / remote APIs out (LG-016)
   "RUF",
 ]
 
+# Privacy (LG-002 / LG-016): these APIs send data to LangSmith or a remote server.
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"langchain_core.tracers.LangChainTracer".msg = "Sends traces to LangSmith. Banned for privacy, see LG-002/LG-016."
+"langchain_core.tracers.langchain.LangChainTracer".msg = "Sends traces to LangSmith. Banned for privacy, see LG-002/LG-016."
+"langchain_core.tracers.context.tracing_v2_enabled".msg = "Turns on LangSmith tracing. Banned for privacy, see LG-002/LG-016."
+"langsmith.traceable".msg = "Sends traces to LangSmith. Banned for privacy, see LG-002/LG-016."
+"langsmith.run_helpers.traceable".msg = "Sends traces to LangSmith. Banned for privacy, see LG-002/LG-016."
+"langsmith.Client".msg = "Talks to the LangSmith API. Banned for privacy, see LG-002/LG-016."
+"langsmith.AsyncClient".msg = "Talks to the LangSmith API. Banned for privacy, see LG-002/LG-016."
+"langgraph.pregel.remote.RemoteGraph".msg = "Sends graph input to a remote server. Banned for privacy, see LG-002/LG-016."
+"langsmith.tracing_context".msg = "tracing_context(enabled=True) overrides the global off switch. Banned, see LG-016."
+"langsmith.configure".msg = "Only lango.privacy may configure LangSmith (to turn it off). See LG-016."
+
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "PLR2004"]   # asserts and literal expectations are fine in tests
+# asserts and literal expectations are fine in tests; tests also drive LangSmith state on purpose
+"tests/**" = ["S101", "PLR2004", "TID251"]
+"src/lango/privacy.py" = ["TID251"]   # the one place allowed to call langsmith.configure(enabled=False)
 
 [tool.ruff.format]
 quote-style = "double"

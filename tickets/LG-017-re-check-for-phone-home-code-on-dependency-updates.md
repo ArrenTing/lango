@@ -20,3 +20,5 @@ week, and a new release could add a new way out (like the LangSmith gateway). I 
 - [ ] Security agent checklist gains a step: on dependency bumps, grep new versions for new env switches / HTTP clients
       (`LANGSMITH_`, `GATEWAY`, `BASE_URL`, `telemetry`, `httpx`, `requests`) and diff against LG-002 findings
 - [ ] Yearly reminder to re-read Anthropic's retention/training pages (policies change)
+- [ ] Close `network_canary` blind spots from the LG-016 security review: patch `asyncio` loop `sock_connect` (Windows
+      `IocpProactor` path) and `socket.socket.sendto` (UDP), and record loopback raw connects in a separate list instead of dropping them

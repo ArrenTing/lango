@@ -8,11 +8,15 @@ traffic.
 from functools import lru_cache
 from typing import Final, Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ANTHROPIC_BASE_URL: Final[str] = "https://api.anthropic.com"
 ANTHROPIC_KEY_PREFIX: Final[str] = "sk-ant-"
+
+
+class SettingsError(RuntimeError):
+    """Settings are invalid. The message names fields and problems, never input values."""
 
 
 class Settings(BaseSettings):
@@ -41,3 +45,21 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Build Settings once and reuse it. Tests call `get_settings.cache_clear()` to reset."""
     return Settings()
+
+
+def load_settings() -> Settings:
+    """Load settings at startup, turning validation errors into a key-free `SettingsError`.
+
+    `exc.errors()` includes the raw input (the API key) by default, so it is built with
+    `include_input=False`. The raise happens *outside* the `except` block, so the original
+    `ValidationError` isn't kept as `__context__` either (LG-003, LG-016 security review).
+    """
+    try:
+        return get_settings()
+    except ValidationError as exc:
+        problems = [
+            f"{'.'.join(str(part) for part in error['loc'])}: {error['msg']}"
+            for error in exc.errors(include_input=False, include_url=False)
+        ]
+    msg = "Invalid lango settings: " + "; ".join(problems)
+    raise SettingsError(msg)

@@ -118,3 +118,7 @@ uv run python tickets/board.py new "Title"            # new ticket
 - Author: `Arren Ting <51100940+ArrenTing@users.noreply.github.com>`, set repo-local. Never the Vecreal address.
 - Commit and push only when Arren asks. Commit messages reference the ticket: `LG-004: first translation node`.
 - CI (`.github/workflows/ci.yml`) must be green on `main`.
+- Repo access (set 2026-09-15): Arren is the only collaborator. Ruleset "Protect main (owner only)" blocks deleting or
+  force-pushing `main` and requires a PR + the `lint · type · test` check, with a bypass for the admin role only (Arren's
+  direct pushes still work). Actions on fork PRs need Arren's approval for every external contributor. Never add
+  collaborators, deploy keys, or bypass actors without Arren asking.

@@ -5,7 +5,13 @@ from pathlib import Path
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from lango.config import ANTHROPIC_BASE_URL, Settings, get_settings
+from lango.config import (
+    ANTHROPIC_BASE_URL,
+    Settings,
+    SettingsError,
+    get_settings,
+    load_settings,
+)
 
 FAKE_KEY = "sk-ant-test-0000"
 
@@ -154,3 +160,45 @@ def test_get_settings_returns_the_same_cached_object() -> None:
     second = get_settings()
 
     assert first is second
+
+
+# ── load_settings: key-free startup errors (LG-016) ─────────────────────────
+
+
+@pytest.mark.usefixtures("valid_key")
+def test_load_settings_returns_settings_for_a_valid_env() -> None:
+    settings = load_settings()
+
+    assert isinstance(settings, Settings)
+    assert settings.anthropic_api_key.get_secret_value() == FAKE_KEY
+
+
+def test_load_settings_error_names_the_key_but_never_contains_its_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange: a malformed key containing a canary. pydantic's `exc.errors()` still includes the
+    # input (LG-003 security note), so load_settings must build its message without it.
+    canary = "SECRET-canary-456"
+    monkeypatch.setenv("ANTHROPIC_API_KEY", f"not-a-real-key-{canary}")
+
+    # Act
+    with pytest.raises(SettingsError) as exc_info:
+        load_settings()
+
+    # Assert: the message is useful...
+    error = exc_info.value
+    assert "anthropic_api_key" in str(error).lower()
+    # ...and the key can't leak through the message, repr, args, or a chained ValidationError.
+    assert canary not in str(error)
+    assert canary not in repr(error)
+    assert all(canary not in str(arg) for arg in error.args)
+    assert error.__cause__ is None
+    assert error.__context__ is None, (
+        "the original ValidationError is still attached as __context__, and its .errors() "
+        "contains the raw key; raise SettingsError outside the except block"
+    )
+
+
+def test_load_settings_error_for_missing_key_is_a_settings_error() -> None:
+    with pytest.raises(SettingsError):
+        load_settings()
