@@ -30,6 +30,13 @@ itself at startup, and a test that fails loudly if anything ever tries to connec
       `langsmith.Client`, `RemoteGraph` (and a grep test for `draw_mermaid_png`)
 - [ ] Security agent verdict: PASS
 
+## 📎 Notes from LG-003 security review
+
+- `hide_input_in_errors=True` hides the key in `str(exc)` and tracebacks, **but `exc.errors()` and `exc.json()` still
+  contain `input`** (verified). If startup catches a settings `ValidationError` to log or report it, use
+  `exc.errors(include_input=False)` and add a test asserting a canary key isn't in the logged output.
+- Never pickle or serialize `Settings`, because `pickle.dumps` contains the plaintext key. Pass only the fields needed.
+
 ## 📎 Notes from LG-002
 
 - Evidence and canary design: see LG-002 → 🔬 Findings (`langsmith/utils.py:121-142`, `run_trees.py:235-316`).
