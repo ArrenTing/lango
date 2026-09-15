@@ -6,7 +6,7 @@ priority: P1
 milestone: M1 Text translation
 mode: guided
 labels: [langgraph, llm]
-depends: [LG-003]
+depends: [LG-003, LG-016]
 ---
 
 ## 🧭 The problem, in plain words

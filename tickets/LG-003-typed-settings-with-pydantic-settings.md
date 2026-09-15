@@ -12,14 +12,18 @@ depends: [LG-002]
 ## 🧭 The problem, in plain words
 
 The app needs a few settings (my API key, which Claude model, language pair) loaded safely from `.env`, with the
-key never printed by accident and tracing guaranteed off, whatever the environment says.
+key never printed by accident and the model's address fixed in code, so no env var can reroute my messages.
 
 ## ✅ Done when
 
 - [ ] `lango.config.Settings` loads from env / `.env`, and the API key is a `SecretStr`
 - [ ] App fails fast with a clear message if the key is missing (without echoing any value)
-- [ ] Tracing is forced off at startup (per LG-002 findings) with a test proving it
+- [ ] Anthropic endpoint pinned in settings: `anthropic_base_url = "https://api.anthropic.com"`, **not** overridable from
+      env (LG-002 found `LANGSMITH_GATEWAY` / `ANTHROPIC_BASE_URL` can silently reroute model traffic)
+- [ ] `.env.example` says LangSmith and Anthropic-routing vars are intentionally unsupported
 - [ ] All checks green
+
+Tracing kill switch, env scrubbing, and the network canary test are split out into **LG-016**.
 
 ## 🔍 Breakdown
 

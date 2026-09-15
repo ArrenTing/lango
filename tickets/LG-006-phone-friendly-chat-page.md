@@ -16,7 +16,8 @@ with big text and one thumb. No app store, no heavy frontend framework.
 
 ## ✅ Done when
 
-- [ ] Jinja2 page served by FastAPI; HTMX (self-hosted, no CDN) posts the message and appends the result
+- [ ] Jinja2 page served by FastAPI; HTMX posts the message and appends the result
+- [ ] Alpine.js for small in-page state (toggles, auto-scroll); HTMX and Alpine both self-hosted from `static/`, no CDN
 - [ ] Mobile layout: sticky input at the bottom, large tap targets, works in iOS/Android browsers
 - [ ] Model output rendered escaped (no `|safe`)
 - [ ] Tested on my actual phone over the local network

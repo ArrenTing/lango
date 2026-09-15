@@ -14,6 +14,21 @@ It's a personal tool first and a portfolio project second. Every feature exists 
 - **Built by hand, with an AI pair.** I write the core code myself in guided sessions. See
   [CLAUDE.md](CLAUDE.md) for the workflow and [tickets/BOARD.md](tickets/BOARD.md) for progress.
 
+## Privacy
+
+lango sends the text you type, and the other person's replies, to exactly one outside service: the Anthropic API,
+which does the translation. It doesn't use LangSmith, analytics, or error-tracking services. Tracing is switched off
+in code at startup, and an automated test checks that the app never connects anywhere else *(being built in
+[LG-016](tickets/LG-016-startup-privacy-guard-and-network-canary-test.md))*. lango doesn't log message text,
+translations, or prompts, only event names, timings, and token counts. Under Anthropic's commercial terms, API
+inputs and outputs aren't used to train models by default, and they're deleted within 30 days. Anthropic may keep
+content longer if its safety systems flag it (up to 2 years) or if the law requires it
+([training](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training),
+[retention](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data)).
+
+The evidence behind this statement (library source file:line references and a network canary run) is in
+[LG-002](tickets/LG-002-investigate-what-data-langgraph-and-langchain-send.md).
+
 ## Quickstart
 
 ```bash
