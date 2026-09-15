@@ -1,0 +1,88 @@
+[project]
+name = "lango"
+version = "0.0.1"
+description = "A private, real-time AI translator for talking with family across languages (English ⇄ Vietnamese first)."
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+license = { text = "MIT" }
+authors = [{ name = "Arren Ting" }]
+dependencies = [
+    "fastapi>=0.141.1",
+    "jinja2>=3.1.6",
+    "langchain-anthropic>=1.7.2",
+    "langgraph>=1.2.11",
+    "pydantic-settings>=2.15.0",
+    "uvicorn[standard]>=0.53.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lango"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.3.1",
+    "pip-audit>=2.10.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.7",
+]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",    # pycodestyle
+  "F",         # pyflakes
+  "I",         # isort
+  "B",         # bugbear
+  "UP",        # pyupgrade
+  "N",         # pep8-naming
+  "S",         # bandit (security)
+  "C4",        # comprehensions
+  "SIM",       # simplify
+  "RET",       # return
+  "ARG",       # unused arguments
+  "PTH",       # pathlib
+  "PL",        # pylint subset
+  "ASYNC",     # async pitfalls (we are an async web app)
+  "RUF",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]   # asserts and literal expectations are fine in tests
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+files = ["src"]
+plugins = ["pydantic.mypy"]
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+  "live_llm: calls the real Anthropic API; skipped unless LANGO_LIVE_LLM=1",
+]
+
+[tool.coverage.run]
+source = ["src/lango"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true

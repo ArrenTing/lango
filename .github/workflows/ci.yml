@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint · type · test
+    runs-on: ubuntu-latest
+    env:
+      # Belt and braces: CI must never ship traces anywhere (see CLAUDE.md privacy rules).
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check .
+      - name: Type-check
+        run: uv run mypy
+      - name: Test
+        run: uv run pytest --cov --cov-report=term-missing
+      - name: Ticket board is up to date
+        run: |
+          uv run python tickets/board.py
+          git diff --exit-code tickets/BOARD.md
+      - name: Dependency audit
+        run: uv run pip-audit
