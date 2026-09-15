@@ -23,7 +23,7 @@ jobs:
       LANGCHAIN_TRACING_V2: "false"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.1.0   # setup-uv publishes no floating major tags
         with:
           enable-cache: true
       - name: Install
