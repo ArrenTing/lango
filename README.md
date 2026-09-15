@@ -1,10 +1,8 @@
 # lango 🗣️
 
-A private, real-time AI translator I built for myself, so I can chat with family in Vietnamese
+A private, real-time AI translator I built for myself, so I can chat with family.
 (English ⇄ Vietnamese first, more languages later). I open it on my phone, type or talk, and
 lango translates both sides of the conversation as fast as the model allows.
-
-It's a personal tool first and a portfolio project second. Every feature exists because I use it.
 
 ## Principles
 
